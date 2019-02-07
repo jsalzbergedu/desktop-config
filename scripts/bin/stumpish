@@ -20,6 +20,14 @@
 
 ### STUMPwm Interactive SHell.
 
+stump_is_running.py
+retval=$?
+if [ ! "$retval" = "0" ]
+then
+    echo "Stumpwm is not running."
+    exit 1
+fi
+
 DELAY=0.01
 
 if ! sleep $DELAY 2>/dev/null >&2

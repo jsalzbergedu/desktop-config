@@ -12,7 +12,6 @@ margin-top = 2
 margin-bottom = 2
 
 [bar/screen]
-monitor = eDP-1-1
 width = 100%
 height = 28
 offset-x = 0
@@ -38,6 +37,7 @@ module-margin-right = 1
 
 font-0 = "Source Code Pro:size=8;1"
 font-1 = "FontAwesome:pixelsize=8;1"
+font-2 = "Siji:pixelsize=10;1"
 
 modules-left = stumpwmgroups volume mpm
 modules-center = 
@@ -104,12 +104,9 @@ menu-0-0 = 
 menu-0-0-exec = poweroff
 menu-0-1 = 
 menu-0-1-exec = reboot
-menu-0-2 = 
-menu-0-2-exec = lock-suspend
 
 menu-0-0-padding = 1
 menu-0-1-padding = 1
-menu-0-2-padding = 1
 
 [module/redshift]
 type = custom/script
@@ -142,7 +139,7 @@ label = %percentage_used%%
 
 [module/wlan]
 type = internal/network
-interface = wlp2s0
+interface = wlp4s0
 interval = 3
 
 format-connected = "<label-connected> "
@@ -181,6 +178,33 @@ format-muted-foreground = ${colors.foreground-alt}
 [module/battery]
 type = internal/battery
 battery = BAT0
+adapter = ADP1
+full-at = 98
+
+format-charging = <animation-charging> <label-charging>
+format-discharging = <ramp-capacity> <label-discharging>
+
+format-full-prefix = " "
+format-full-prefix-foreground = ${colors.foreground-alt}
+
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-3 = 
+ramp-capacity-4 = 
+ramp-capacity-foreground = ${colors.alert}
+
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-3 = 
+animation-charging-4 = 
+animation-charging-foreground = ${colors.foreground}
+animation-charging-framerate = 750
+
+[module/battery_one]
+type = internal/battery
+battery = BAT1
 adapter = ADP1
 full-at = 98
 

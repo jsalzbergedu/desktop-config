@@ -10,7 +10,7 @@
                      :dont-close t)
 
 ;; Basics
-(set-prefix-key (kbd "C-e"))
+(set-prefix-key (kbd "C-t"))
 (setf *startup-message* NIL
       *suppress-abort-messages* t
       *shell-program* (getenv "SHELL"))
@@ -35,12 +35,14 @@
 (load-module "swm-gaps")
 (load-module "kbd-layouts")
 
-(kbd-layouts:keyboard-layout-list "us" "in -variant hin-wx" "ru -variant phonetic")
-
 (setf swm-gaps:*inner-gaps-size* 10
-      swm-gaps:*outer-gaps-size* 15)
+     swm-gaps:*outer-gaps-size* 15)
 
+;; Turn on gaps
+(run-commands "toggle-gaps")
 ;; Looks
+(push "/usr/share/fonts/TTF/" xft:*font-dirs*)
+(xft:cache-fonts)
 (set-font (make-instance 'xft:font
                          :family "SauceCodePro Nerd Font"
                          :subfamily "Regular"
@@ -48,7 +50,7 @@
 
 (setf *message-window-gravity* :center
       *input-window-gravity* :center
-      *window-border-style* :thin
+      *window-border-style* :none
       *message-window-padding* 10
       *maxsize-border-width* 5
       *normal-border-width* 5
@@ -118,20 +120,17 @@ run-or-raise with group search t."
       (run-or-raise cmd `(:class ,win-cls) T T)))
 
 ;; Commands
-(defcommand run-or-raise-firefox () ()
-  (run-or-raise-prefer-group "firefox-nightly" "Nightly"))
+(defcommand emacs () ()
+  (run-shell-command "emacsclient -c"))
 
-(defcommand run-or-raise-rambox () ()
-  (run-or-raise-prefer-group "rambox" "Rambox"))
+(defcommand firefox () ()
+  (run-shell-command "firefox"))
 
 (defcommand run-or-raise-alt-browser () ()
   (run-or-raise-prefer-group "chromium" "Chromium"))
 
 (defcommand run-or-raise-konsole () ()
   (run-or-raise-prefer-group "konsole --notransparency --stylesheet ~/cfg/konsole/konsole.css" "konsole"))
-
-(defcommand emacs () ()
-  (run-or-raise-prefer-group "emacs" "Emacs"))
 
 (defcommand battery () ()
   (message (run-shell-command "bat" t)))
@@ -171,11 +170,6 @@ run-or-raise with group search t."
 (defun rofi (mode)
   (run-shell-command (concat "rofi -show " mode " -m " (write-to-string (head-number (current-head))))))
 
-(defcommand lol () () (message "lol kek"))
-
-(defcommand emacs-anywhere () ()
-  (run-shell-command "bash ~/.emacs.d/private/rogue/emacs-anywhere/ea.sh"))
-
 (defcommand rofi-run () () (rofi "run -sidebar-mode"))
 (defcommand rofi-window () () (rofi "window"))
 (defcommand rofi-windowcd () () (rofi "windowcd"))
@@ -187,7 +181,11 @@ run-or-raise with group search t."
 (define-key *top-map* (kbd "s-t") "exec konsole --notransparency --stylesheet ~/cfg/konsole/konsole.css")
 (define-key *top-map* (kbd "s-x") "exec xkill")
 (define-key *top-map* (kbd "s-w") "exec konsole --notransparency --stylesheet ~/cfg/konsole/konsole.css -e htop ")
-(define-key *top-map* (kbd "C-q") "lol")
+
+(define-key *root-map* (kbd "l") "move-focus right")
+(define-key *root-map* (kbd "h") "move-focus left")
+(define-key *root-map* (kbd "j") "move-focus down")
+(define-key *root-map* (kbd "k") "move-focus up")
 
 (defvar *toggle-map* (make-sparse-keymap))
 (define-key *root-map* (kbd "t") '*toggle-map*)
@@ -204,7 +202,6 @@ run-or-raise with group search t."
 (define-key *top-map* (kbd "s-c") "fclear")
 (define-key *top-map* (kbd "s-l") "exec lock")
 (define-key *top-map* (kbd "s-SPC") "bbq")
-(define-key *top-map* (kbd "s-e") "emacs-anywhere")
 (define-key *top-map* (kbd "s-S-SPC") "switch-keyboard-layout")
 
 (define-key *top-map* (kbd "XF86Launch5") "gselect 1")
@@ -240,10 +237,13 @@ run-or-raise with group search t."
 (define-key *top-map* (kbd "s-KP_Right") "ratrelwarp 100 0")
 (define-key *top-map* (kbd "s-KP_Begin") "ratclick 3")
 
-(define-key *root-map* (kbd "C-f") "run-or-raise-firefox")
-(define-key *root-map* (kbd "C-c") "run-or-raise-konsole")
-(define-key *root-map* (kbd "C-r") "run-or-raise-rambox")
+(define-key *root-map* (kbd "c") "exec kitty")
+(define-key *root-map* (kbd "C-c") "exec kitty")
 (define-key *root-map* (kbd "C-v") "run-or-raise-alt-browser")
+(define-key *root-map* (kbd "C-e") "emacs")
+(define-key *root-map* (kbd "C-r") "rofi-run")
+(define-key *root-map* (kbd "e") "emacs")
+(define-key *root-map* (kbd "d") "firefox")
 (define-key *root-map* (kbd "!") "run-shell-command")
 (define-key *root-map* (kbd "b") "windowlist")
 (define-key *root-map* (kbd "q") "refresh-stuff")
@@ -256,16 +256,10 @@ run-or-raise with group search t."
 (define-key *groups-map* (kbd "M-Left") "gprev-with-window")
 (define-key *groups-map* (kbd "b") "global-windowlist")
 
-(defvar *winner-map* (make-sparse-keymap))
-(define-key *root-map* (kbd "c") '*winner-map*)
-(define-key *winner-map* (kbd "Left") "winner-undo")
-(define-key *winner-map* (kbd "Right") "winner-redo")
-
 ;; Init
 (update-color-map (current-screen))
 (run-shell-command "sh ~/.screenlayout/multi-vga.sh")
 (run-shell-command "xmodmap ~/.Xmodmap")
-(run-shell-command "sh ~/.fehbg")
 (run-shell-command "xset b off")
 
 ;; Groups
@@ -274,24 +268,17 @@ run-or-raise with group search t."
 
 (clear-window-placement-rules)
 
-(define-frame-preference "ext"
-    (nil nil t :class "Rambox"))
-
 (define-frame-preference "flt"
-    (nil nil t :class "electrum")
-  (nil nil t :class "Syncthing GTK"))
+    (nil nil t :class "Syncthing GTK"))
 
 ;; Programs
+(run-shell-command "~/swapcaps.sh")
 (run-shell-command "compton")
-(run-shell-command "nm-applet")
 (run-shell-command "dunst")
 (run-shell-command "redshift")
 (run-shell-command "mpm-play")
 (run-shell-command "gnome-encfs-manager")
-(run-shell-command "electrum")
-(run-shell-command "rambox")
 (run-shell-command "megasync")
-(run-shell-command "syncthing-gtk -m")
 (run-shell-command "kdeconnect-indicator")
 (run-shell-command "polybar screen --reload")
 
